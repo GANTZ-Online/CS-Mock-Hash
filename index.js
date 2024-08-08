@@ -1,51 +1,80 @@
 // This allows us to use the bcrypt algorithm in our Node.js project
-const bcrypt = require('bcrypt')
+const bcrypt = require('bcrypt');
 
 // This allows us to read from the terminal
-const readlineSync = require('readline-sync')
+const readlineSync = require('readline-sync');
 
 // We'll keep a global object to store usernames and password hashes
-let globalStore = {}
+let globalStore = {};
 
+// Define the number of salt rounds for bcrypt
+const saltRounds = 10;
 
-
-/*
-* SOLUTION CODE FOR BCRYPT FUNCTIONS
-*/
-
-// function for checking a password
-checkPassword = async (username, plaintextPassword) => {
+// Function for checking a password
+const checkPassword = async (username, plaintextPassword) => {
     // TODO: Make sure to delete this console.log once you're done implementing the function!
-    console.log('\n Uh-oh, checkPassword is not yet implemented. 😢')
-    // Ensure global store contains the user 
-    // (this is a quick way to check if an object contains a key)
+    // console.log('\n Uh-oh, checkPassword is not yet implemented. 😢');
+    
+    // Ensure global store contains the user
     if (globalStore[username]) {
-        // TODO: Use bcrypt's compare methof to compare a plaintext password to a password hash
-
-        // TODO: The result variable is a boolean. True means the user was valid. Take action accordingly.
-        if (result) {
-            // TODO: Display message for valid credentials
+        try {
+            // Retrieve the hashed password from the global store
+            const hashedPassword = globalStore[username];
+            
+            // TODO: Use bcrypt's compare method to compare a plaintext password to a password hash
+            const isMatch = await bcrypt.compare(plaintextPassword, hashedPassword);
+            
+            // TODO: The result variable is a boolean. True means the user was valid. Take action accordingly.
+            if (isMatch) {
+                // TODO: Display message for valid credentials
+                console.log('✔️ Credentials are valid. Welcome, ' + username + '!');
+            } else {
+                // TODO: Display message for invalid credentials
+                console.log('❌ Invalid credentials. Please try again.');
+            }
+        } catch (err) {
+            console.error('Error checking password:', err);
         }
-        else {
-            // TODO: Display message for invalid credentials
-        }
-    }
-    else {
+    } else {
         // Tell the user they can't login to a non-existent account
-        console.log('\n❌ Sorry, but this user does not exist.\n')
+        console.log('\n❌ Sorry, but this user does not exist.\n');
     }
-}
+};
 
-hashPassword = async (username, password) => {
+// Function to hash a password
+const hashPassword = async (username, password) => {
     // TODO: Make sure to delete this console.log once you're done implementing the function!
-    console.log('\nUh-oh, hashPassword is not yet implemented. 😢')
+    console.log('\nUh-oh, hashPassword is not yet implemented. 😢');
 
-    // TODO: Make the password hash using bcrypt
+    try {
+        // TODO: Make the password hash using bcrypt
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        
+        // TODO: Add the user and password hash to the global store object
+        globalStore[username] = hashedPassword;
 
-    // TODO: Add the user and password hash to the global store object
+        // TODO: Print a status update including the username and password hash
+        console.log(`✅ User ${username} added with hashed password: ${hashedPassword}`);
+    } catch (err) {
+        console.error('Error hashing password:', err);
+    }
+};
 
-    // TODO: Print a status update including the username and password hash
-}
+// Example usage
+const main = async () => {
+    // Example username and password
+    const username = 'testUser';
+    const password = 'testPassword';
+
+    // Hash and store the password
+    await hashPassword(username, password);
+
+    // Check the password
+    await checkPassword(username, password);
+};
+
+// Run the example
+main();
 
 
 
